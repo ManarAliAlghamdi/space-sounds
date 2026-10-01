@@ -136,7 +136,7 @@ canvas.fade{animation:fadein .7s ease-out}
 /* =====================================================================
    YOUR SOUNDS: edit this list to add, remove, or reorder sounds.
    src:   path to the audio file (MP3, M4A, WAV all work here)
-   anim:  blackhole | pulsar | planet | waves | earth | star | comet | sun
+   anim:  blackhole | pulsar | planet | waves | earth | star | comet | sun | supernova
    duration is optional (seconds), only used before the file loads.
    ===================================================================== */
 const SOUNDS = [
@@ -146,6 +146,7 @@ const SOUNDS = [
   { title: "المرور بجانب مذنّب", description: "صوت ارتطام الغبار والصخور الصغيرة بدرع مركبة ستاردست أثناء مرورها بجانب مذنّب تمبل ١", anim: "comet", src: "sounds/comet-tempel1.m4a" },
   { title: "ثقب بيرسيوس الأسود", description: "موجات صوتية حقيقية يطلقها ثقب أسود في عنقود بيرسيوس المجري، رفع العلماء نغمتها ٥٧ أوكتاف لنتمكن من سماعها.", anim: "blackhole", src: "sounds/perseus-black-hole.m4a" },
   { title: "برق المشتري", description: "موجات راديو صادرة من عواصف البرق على كوكب المشتري، التقطتها مركبة فوياجر.", anim: "waves", src: "sounds/jupiter-lightning.m4a" },
+  { title: "سوبرنوفا 1987A في سحابة ماجلان العظمى", description: "انفجار نجم عملاق رُصد عام ١٩٨٧ في مجرة قريبة على بُعد نحو ١٦٨ ألف سنة ضوئية. حوّل العلماء صور التلسكوبات لحلقة الغاز المتوهجة حوله إلى صوت.", anim: "supernova", src: "sounds/supernova-1987a.m4a" },
 ];
 
 (function(){
@@ -579,6 +580,62 @@ const SCENES = {
       const disk = g.createRadialGradient(cx - R*0.2, cy - R*0.2, R*0.1, cx, cy, R);
       disk.addColorStop(0, "#FFF6DC"); disk.addColorStop(0.55, "#FFC061"); disk.addColorStop(1, "#E0602A");
       g.globalAlpha = 1; g.fillStyle = disk; g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.fill();
+    }
+  },
+
+  supernova: {
+    label: "مستعر أعظم",
+    init(){
+      // debris flying out from the explosion, and the "string of pearls": hot spots on the ring lit by the shock wave
+      this.debris = Array.from({length:260}, () => ({ a: Math.random()*TAU, d: Math.random(), s: .4 + Math.random()*.8, size: Math.random()*1.3 + .3, hot: Math.random() }));
+      this.pearls = Array.from({length:28}, (_, i) => ({ a: i/28*TAU + (Math.random() - .5)*.12, ph: Math.random()*TAU }));
+      this.shocks = []; this.prev = 0; this.acc = 0;
+    },
+    draw(cx, cy, S){
+      const R = S*0.27, tilt = 0.55, rot = -0.3;
+      // shock waves: a slow steady beat, plus one on every jump in the sound
+      this.acc += reduced ? 0.002 : 0.006;
+      if(this.acc > 1 || level - this.prev > 0.06){ this.acc = 0; this.shocks.push({ k: 0 }); }
+      this.prev = level;
+      g.strokeStyle = C.cool; g.lineWidth = 1.5;
+      this.shocks = this.shocks.filter(w => {
+        w.k += 0.006 + level*0.01;
+        g.globalAlpha = Math.max(0, 1 - w.k)*0.45;
+        g.beginPath(); g.ellipse(cx, cy, R*1.9*w.k, R*1.9*w.k*0.92, 0, 0, TAU); g.stroke();
+        return w.k < 1;
+      });
+      g.translate(cx, cy); g.rotate(rot);
+      // two faint outer rings, above and below, like an hourglass
+      g.lineWidth = 1.2; g.strokeStyle = C.accent;
+      for(const sy of [-1, 1]){
+        g.globalAlpha = 0.16 + level*0.2;
+        g.beginPath(); g.ellipse(R*0.12*sy, sy*R*0.62, R*1.25, R*1.25*tilt, 0, 0, TAU); g.stroke();
+      }
+      // debris cloud
+      for(const p of this.debris){
+        const d = (p.d + t*p.s*0.06) % 1, rad = R*0.7*d*(1 + level*0.35);
+        g.globalAlpha = (1 - d)*(0.35 + level*0.6);
+        g.fillStyle = p.hot > .7 ? C.cool : C.accent;
+        g.beginPath(); g.arc(Math.cos(p.a)*rad, Math.sin(p.a)*rad*0.85, p.size, 0, TAU); g.fill();
+      }
+      // core glow
+      const core = g.createRadialGradient(0, 0, 0, 0, 0, R*0.45*(1 + level*0.6));
+      core.addColorStop(0, "#FFFFFF"); core.addColorStop(0.25, C.accent); core.addColorStop(1, "transparent");
+      g.globalAlpha = 0.55 + level*0.45; g.fillStyle = core;
+      g.beginPath(); g.arc(0, 0, R*0.45*(1 + level*0.6), 0, TAU); g.fill();
+      // the main glowing ring
+      g.globalAlpha = 0.35 + level*0.4; g.strokeStyle = C.accent; g.lineWidth = R*0.05;
+      g.beginPath(); g.ellipse(0, 0, R, R*tilt, 0, 0, TAU); g.stroke();
+      // pearls light up with the sound, each following its own frequency band
+      this.pearls.forEach((p, i) => {
+        const b = bands[(i*3) % 32];
+        const glow = 0.35 + b*1.1 + (reduced ? 0 : Math.sin(t*3 + p.ph)*0.1);
+        const x = Math.cos(p.a)*R, y = Math.sin(p.a)*R*tilt, r = R*0.05*(0.8 + glow);
+        const halo = g.createRadialGradient(x, y, 0, x, y, r*3);
+        halo.addColorStop(0, "#FFFFFF"); halo.addColorStop(0.3, C.accent); halo.addColorStop(1, "transparent");
+        g.globalAlpha = Math.min(1, glow); g.fillStyle = halo;
+        g.beginPath(); g.arc(x, y, r*3, 0, TAU); g.fill();
+      });
     }
   }
 };

@@ -8,7 +8,7 @@ Add or edit a sound
   1. Put the audio file in the sounds/ folder (MP3, M4A, WAV).
   2. Open index.html in a code editor and find the SOUNDS list at the top of the <script>.
   3. Add a line: { title: "...", description: "...", anim: "blackhole", src: "sounds/your-file.mp3" },
-     anim options: blackhole, pulsar, planet, waves, earth, star, comet, sun
+     anim options: blackhole, pulsar, planet, waves, earth, star, comet, sun, supernova
 
 Run it
   Best: run a local server in this folder, then open http://localhost:8000
