@@ -6,7 +6,7 @@
 <title>أصوات الفضاء</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Cairo:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#EEF0FA; --surface:#E2E5F5; --line:#C9CDE6; --text:#171A45; --muted:#555A88;
@@ -34,7 +34,7 @@ body{
 }
 button,input,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.display{font-family:"Reem Kufi","IBM Plex Sans Arabic",Tahoma,sans-serif}
+.display{font-family:"Cairo","IBM Plex Sans Arabic",Tahoma,sans-serif}
 
 /* the page fills one screen: header and player stay put, only the list scrolls */
 .page{
@@ -75,7 +75,7 @@ header p{margin:.6rem 0 0;color:var(--muted);max-width:38rem}
 .row.active .orbit::after{background:var(--accent)}
 .row.active.playing .orbit::after{animation:spin 2.4s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.pick-title{display:block;font-family:"Reem Kufi","IBM Plex Sans Arabic",sans-serif;font-size:1.3rem;line-height:1.4;font-weight:500;transition:color .15s}
+.pick-title{display:block;font-family:"Cairo","IBM Plex Sans Arabic",sans-serif;font-size:1.3rem;line-height:1.4;font-weight:600;transition:color .15s}
 .row.active .pick-title{color:var(--accent)}
 .pick-desc{display:block;color:var(--muted);font-size:.95rem;margin-top:.15rem}
 .empty{color:var(--muted);padding:1.5rem 0}
